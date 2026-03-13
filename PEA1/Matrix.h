@@ -28,6 +28,8 @@ public:
     int get(int row, int col) const;
     void set(int row, int col, int val);
     void print() const;
+
+    int calculateTotalCost(vector<int> &path) const;
 };
 
 

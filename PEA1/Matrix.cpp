@@ -52,3 +52,11 @@ void Matrix::print() const {
         cout << endl;
     }
 }
+
+int Matrix::calculateTotalCost(vector<int> &path) const {
+    int total = 0;
+    for (int i=0; i < path.size()-1; i++) {
+        total += get(path[i], path[i+1]);
+    }
+    return total;
+}

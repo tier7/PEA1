@@ -7,4 +7,7 @@ add_executable(PEA1 main.cpp
         Matrix.cpp
         Matrix.h
         Generator.cpp
-        Generator.h)
+        Generator.h
+        NearestNeighbour.cpp
+        NearestNeighbour.h
+        AlgResults.h)
