@@ -20,6 +20,9 @@ public:
     Matrix(int n);
 
     void resize(int n);
+
+    int getSize() const;
+
     void clear();
 
     int get(int row, int col) const;

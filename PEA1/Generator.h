@@ -5,12 +5,14 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+#include "Matrix.h"
 
 
 class Generator {
 public:
-    void generateRandom(int minVal, int maxVal, int n);
+    void generateRandom(Matrix &matrix, int minVal, int maxVal);
 };
+
 
 
 

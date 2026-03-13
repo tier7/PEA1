@@ -18,6 +18,10 @@ void Matrix::resize(int n) {
     data.assign(n, vector<int>(n, 0));
 }
 
+int Matrix::getSize() const {
+    return size;
+}
+
 void Matrix::clear() {
     size = 0;
     data.clear();
@@ -33,7 +37,7 @@ int Matrix::get(int row, int col) const {
 }
 
 void Matrix::set(int row, int col, int val) {
-    if (row <= size || row >= 0 || col <= size || col >= 0) {
+    if (row <= size && row >= 0 && col <= size && col >= 0) {
         data[row][col] = val;
     }
     else {
