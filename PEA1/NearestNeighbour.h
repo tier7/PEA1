@@ -13,7 +13,7 @@ using namespace std;
 
 class NearestNeighbour {
 public:
-    static AlgResults NN(const Matrix &matrix);
+    static AlgResults NN(const Matrix &matrix, int start);
 };
 
 

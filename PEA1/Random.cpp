@@ -1,0 +1,51 @@
+//
+// Created by wiktor on 15.03.2026.
+//
+
+#include "Random.h"
+#include <vector>
+#include "Matrix.h"
+#include "AlgResults.h"
+#include <random>
+#include <limits>
+#include <algorithm>
+
+using namespace std;
+
+AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
+    AlgResults result(numeric_limits<int>::max());
+    int size = matrix.getSize();
+    if (size <= 1) {
+        result.total_cost = 0;
+        result.path = {start};
+        return result;
+    }
+    vector<int> vertex_list;
+    for (int i = 0; i < size; i++) {
+        if (i != start) {
+            vertex_list.push_back(i);
+        }
+    }
+    random_device rd;
+    mt19937 g(rd());
+
+    for (int i = 0; i < p; i++) {
+        shuffle(vertex_list.begin(), vertex_list.end(), g);
+        int total_cost = 0;
+        total_cost+= matrix.get(start, vertex_list[0]);
+        for (int j = 0; j < size-2; j++) {
+            total_cost+= matrix.get(vertex_list[j], vertex_list[j+1]);
+        }
+        total_cost+= matrix.get(vertex_list[size-2], start);
+        if (result.total_cost > total_cost) {
+            result.total_cost = total_cost;
+            result.path = {start};
+            for (int v : vertex_list) {
+                result.path.push_back(v);
+            }
+            result.path.push_back(start);
+        }
+        cout<<endl;
+    }
+    return result;
+}

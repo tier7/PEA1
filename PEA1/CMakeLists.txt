@@ -10,4 +10,6 @@ add_executable(PEA1 main.cpp
         Generator.h
         NearestNeighbour.cpp
         NearestNeighbour.h
-        AlgResults.h)
+        AlgResults.h
+        Random.cpp
+        Random.h)

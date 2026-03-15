@@ -10,7 +10,7 @@
 #include <vector>
 using namespace std;
 
-AlgResults NearestNeighbour::NN(const Matrix &matrix){
+AlgResults NearestNeighbour::NN(const Matrix &matrix, int start){
     int size = matrix.getSize();
     AlgResults result(0);
     if (size <= 1) {
@@ -18,10 +18,11 @@ AlgResults NearestNeighbour::NN(const Matrix &matrix){
     }
     vector<bool> visited(size, false);
     int unvisited_count = size-1;
-    int current = 0;
+    int current = start;
     int next = 0;
     int path_cost = 0;
-    visited[0] = true;
+    visited[start] = true;
+    result.path.push_back(start);
     while (unvisited_count > 0) {
         int min_cost = std::numeric_limits<int>::max();
         for (int i = 0; i < size; i++) {
@@ -31,11 +32,12 @@ AlgResults NearestNeighbour::NN(const Matrix &matrix){
             }
         }
         result.total_cost += min_cost;
-        result.path.push_back(next);
         current = next;
         visited[current] = true;
+        result.path.push_back(current);
         unvisited_count--;
     }
-    path_cost += matrix.get(current, 0);
+    result.total_cost += matrix.get(current, 0);
+    result.path.push_back(start);
     return result;
 }
