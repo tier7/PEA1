@@ -2,17 +2,16 @@
 // Created by wiktor on 15.03.2026.
 //
 
-#include "Random.h"
-#include <vector>
-#include "Matrix.h"
+#include "BruteForce.h"
 #include "AlgResults.h"
-#include <random>
-#include <limits>
+#include "Matrix.h"
+#include <vector>
 #include <algorithm>
+#include <limits>
 
 using namespace std;
 
-AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
+AlgResults BruteForce::BF(const Matrix &matrix, int start) {
     AlgResults result(numeric_limits<int>::max());
     int size = matrix.getSize();
     if (size <= 1) {
@@ -26,18 +25,15 @@ AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
             vertex_list.push_back(i);
         }
     }
-    random_device rd;
-    mt19937 g(rd());
-
-    for (int i = 0; i < p; i++) {
-        shuffle(vertex_list.begin(), vertex_list.end(), g);
+    sort(vertex_list.begin(), vertex_list.end());
+    do {
         int total_cost = 0;
         total_cost+= matrix.get(start, vertex_list[0]);
         for (int j = 0; j < size-2; j++) {
             total_cost+= matrix.get(vertex_list[j], vertex_list[j+1]);
         }
         total_cost+= matrix.get(vertex_list[size-2], start);
-        if (result.total_cost > total_cost) {
+        if (total_cost < result.total_cost) {
             result.total_cost = total_cost;
             result.path = {start};
             for (int v : vertex_list) {
@@ -45,6 +41,6 @@ AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
             }
             result.path.push_back(start);
         }
-    }
+    } while (next_permutation(vertex_list.begin(), vertex_list.end()));
     return result;
 }
