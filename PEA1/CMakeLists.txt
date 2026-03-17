@@ -14,4 +14,6 @@ add_executable(PEA1 main.cpp
         Random.cpp
         Random.h
         BruteForce.cpp
-        BruteForce.h)
+        BruteForce.h
+        RepeatedNearestNeighbour.cpp
+        RepeatedNearestNeighbour.h)

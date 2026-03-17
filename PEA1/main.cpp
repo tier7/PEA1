@@ -5,6 +5,8 @@
 #include "AlgResults.h"
 #include "Random.h"
 #include "BruteForce.h"
+#include "RepeatedNearestNeighbour.h"
+#include "RepeatedNearestNeighbour.h"
 
 int main() {
     Matrix matrix(6);
@@ -31,6 +33,12 @@ int main() {
     cout << "\nKoszt BF: " << BF.total_cost << endl;
     cout << "Sciezka BF: ";
     for (int v : BF.path) {
+        cout << v << " ";
+    }
+    AlgResults RNN = RepeatedNearestNeighbour::RNN(matrix, 0);
+    cout << "\nKoszt RNN: " << RNN.total_cost << endl;
+    cout << "Sciezka RNN: ";
+    for (int v : RNN.path) {
         cout << v << " ";
     }
     return 0;

@@ -14,6 +14,8 @@ AlgResults NearestNeighbour::NN(const Matrix &matrix, int start){
     int size = matrix.getSize();
     AlgResults result(0);
     if (size <= 1) {
+        result.total_cost = 0;
+        result.path = {start};
         return result;
     }
     vector<bool> visited(size, false);
