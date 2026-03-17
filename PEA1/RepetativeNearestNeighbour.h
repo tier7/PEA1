@@ -8,7 +8,7 @@
 #include "Matrix.h"
 
 
-class RepeatedNearestNeighbour {
+class RepetativeNearestNeighbour {
 public:
     static AlgResults RNN(const Matrix &matrix, int start);
 private:

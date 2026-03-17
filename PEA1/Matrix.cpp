@@ -28,7 +28,7 @@ void Matrix::clear() {
 }
 
 int Matrix::get(int row, int col) const {
-    if (row <= size || row >= 0 || col<= size || col >= 0) {
+    if (row >= 0 && row < size && col >= 0 && col < size){
         return data[row][col];
     }
     else {
@@ -37,7 +37,7 @@ int Matrix::get(int row, int col) const {
 }
 
 void Matrix::set(int row, int col, int val) {
-    if (row <= size && row >= 0 && col <= size && col >= 0) {
+    if (row >= 0 && row < size && col >= 0 && col < size) {
         data[row][col] = val;
     }
     else {

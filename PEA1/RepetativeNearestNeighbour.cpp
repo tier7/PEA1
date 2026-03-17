@@ -2,7 +2,7 @@
 // Created by wiktor on 17.03.2026.
 //
 
-#include "RepeatedNearestNeighbour.h"
+#include "RepetativeNearestNeighbour.h"
 #include "Matrix.h"
 #include "AlgResults.h"
 #include <vector>
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-AlgResults RepeatedNearestNeighbour::RNN(const Matrix &matrix, int start) {
+AlgResults RepetativeNearestNeighbour::RNN(const Matrix &matrix, int start) {
     int size = matrix.getSize();
     AlgResults result(numeric_limits<int>::max());
     if (size <= 1) {
@@ -28,7 +28,7 @@ AlgResults RepeatedNearestNeighbour::RNN(const Matrix &matrix, int start) {
     return result;
 }
 
-void RepeatedNearestNeighbour::RNNRec(const Matrix &matrix, int start, int current, vector<bool> &visited, vector<int> &current_path,
+void RepetativeNearestNeighbour::RNNRec(const Matrix &matrix, int start, int current, vector<bool> &visited, vector<int> &current_path,
 int current_cost, int visited_count, AlgResults &result) {
 
 

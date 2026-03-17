@@ -22,7 +22,6 @@ AlgResults NearestNeighbour::NN(const Matrix &matrix, int start){
     int unvisited_count = size-1;
     int current = start;
     int next = 0;
-    int path_cost = 0;
     visited[start] = true;
     result.path.push_back(start);
     while (unvisited_count > 0) {
@@ -39,7 +38,7 @@ AlgResults NearestNeighbour::NN(const Matrix &matrix, int start){
         result.path.push_back(current);
         unvisited_count--;
     }
-    result.total_cost += matrix.get(current, 0);
+    result.total_cost += matrix.get(current, start);
     result.path.push_back(start);
     return result;
 }
