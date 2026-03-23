@@ -39,9 +39,9 @@ void bruteForceTest() {
     vector<int> sizes = {8, 9, 10, 11, 12, 13, 14};
     Generator generator;
 
-    ofstream file("bruteForce_results.txt");
+    ofstream file("bruteForce_results.csv");
     if (!file.is_open()) {
-        cout << "Blad otwarcia bruteForce_results.txt" << endl;
+        cout << "Blad otwarcia bruteForce_results.csv" << endl;
         return;
     }
 
@@ -70,7 +70,7 @@ void bruteForceTest() {
     }
 
     file.close();
-    cout << "Zapisano do bruteForce_results.txt" << endl;
+    cout << "Zapisano do bruteForce_results.csv" << endl;
 }
 
 void compareAlgorithms() {
