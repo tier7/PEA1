@@ -5,14 +5,14 @@
 	"compiler-simulate-id" : "",
 	"config" : "Debug",
 	"cxx-modules" : {},
-	"dir-cur-bld" : "C:/Users/wiktor/CLionProjects/PEA1/PEA1/cmake-build-debug",
-	"dir-cur-src" : "C:/Users/wiktor/CLionProjects/PEA1/PEA1",
-	"dir-top-bld" : "C:/Users/wiktor/CLionProjects/PEA1/PEA1/cmake-build-debug",
-	"dir-top-src" : "C:/Users/wiktor/CLionProjects/PEA1/PEA1",
+	"dir-cur-bld" : "C:/Users/ja/CLionProjects/PEA1/PEA1/cmake-build-debug",
+	"dir-cur-src" : "C:/Users/ja/CLionProjects/PEA1/PEA1",
+	"dir-top-bld" : "C:/Users/ja/CLionProjects/PEA1/PEA1/cmake-build-debug",
+	"dir-top-src" : "C:/Users/ja/CLionProjects/PEA1/PEA1",
 	"exports" : [],
 	"forward-modules-from-target-dirs" : [],
 	"include-dirs" : [],
 	"language" : "CXX",
 	"linked-target-dirs" : [],
-	"module-dir" : "C:/Users/wiktor/CLionProjects/PEA1/PEA1/cmake-build-debug/CMakeFiles/PEA1.dir"
+	"module-dir" : "C:/Users/ja/CLionProjects/PEA1/PEA1/cmake-build-debug/CMakeFiles/PEA1.dir"
 }

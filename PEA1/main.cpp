@@ -10,6 +10,8 @@
 #include <string>
 #include <chrono>
 #include <vector>
+#include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -27,16 +29,27 @@ void printResult(const AlgResults& result, long long time) {
     cout << "Czas: " << time << " us" << endl;
 }
 
-double relativeError(int algCost, int optimalCost) {
-    if (optimalCost == 0) return 0.0;
-    return 100.0 * (algCost - optimalCost) / optimalCost;
+double calculateError(int algCost, int bestCost) {
+    if (bestCost == 0) return 0.0;
+    return 100.00*(algCost - bestCost) / bestCost;
 }
 
 void bruteForceTest() {
-    cout << "Test czasowy BF"<<endl;
-    vector<int> sizes = {8,9,10,11,12, 13,14};
+    cout << "Test czasowy BF" << endl;
+    vector<int> sizes = {8, 9, 10, 11, 12, 13, 14};
     Generator generator;
+
+    ofstream file("bruteForce_results.txt");
+    if (!file.is_open()) {
+        cout << "Blad otwarcia bruteForce_results.txt" << endl;
+        return;
+    }
+
+    cout << fixed << setprecision(3);
+    file << fixed << setprecision(3);
+
     cout << "N;Koszt;Czas(ms)" << endl;
+    file << "N;Koszt;Czas(ms)\n";
 
     for (int n : sizes) {
         Matrix matrix;
@@ -46,20 +59,43 @@ void bruteForceTest() {
         auto start = chrono::high_resolution_clock::now();
         AlgResults result = BruteForce::BF(matrix, 0);
         auto end = chrono::high_resolution_clock::now();
-        long long time = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-        cout << n << ";" << result.total_cost << ";" << time << endl;
+
+        long long time = chrono::duration_cast<chrono::microseconds>(end - start).count();
+        double time_ms = time / 1000.0;
+
+        cout << n << ";" << result.total_cost << ";" << time_ms << endl;
+        file << n << ";" << result.total_cost << ";" << time_ms << "\n";
+
+        file.flush();
     }
+
+    file.close();
+    cout << "Zapisano do bruteForce_results.txt" << endl;
 }
 
 void compareAlgorithms() {
-    cout << "Porownanie algorytmow"<<endl;
+    cout << "Porownanie algorytmow" << endl;
     Generator generator;
+    int tests;
+    cout << "Liczba powtorzen dla kazdego N: ";
+    cin >> tests;
+
+    ofstream file("compareAlg_results.csv");
+    if (!file.is_open()) {
+        cout << "Blad otwarcia compareAlg_results.csv" << endl;
+        return;
+    }
+
+    file << "N;TestNr;BFCost;NNCost;NNError;RNNCost;RNNError;RNGCost;RNGError\n";
+    file << fixed << setprecision(2);
+
+    cout <<"N;AvgNNError;AvgRNNError;AvgRNGError" << endl;
+    cout << fixed << setprecision(2);
 
     for (int size = 10; size < 15; size++) {
         double sumNN = 0.0;
         double sumRNN = 0.0;
         double sumRNG = 0.0;
-        int tests = 5;
 
         for (int i = 0; i < tests; i++) {
             Matrix matrix;
@@ -70,18 +106,27 @@ void compareAlgorithms() {
             AlgResults NN = NearestNeighbour::NN(matrix, 0);
             AlgResults RNN = RepetativeNearestNeighbour::RNN(matrix, 0);
             AlgResults RNG = Random::RandomAlg(matrix, 0, 10 * size);
+            double errNN = calculateError(NN.total_cost, BF.total_cost);
+            double errRNN = calculateError(RNN.total_cost, BF.total_cost);
+            double errRNG = calculateError(RNG.total_cost, BF.total_cost);
 
-            sumNN += relativeError(NN.total_cost, BF.total_cost);
-            sumRNN += relativeError(RNN.total_cost, BF.total_cost);
-            sumRNG += relativeError(RNG.total_cost, BF.total_cost);
+            sumNN += errNN;
+            sumRNN += errRNN;
+            sumRNG += errRNG;
+
+            file << size << ";" << (i + 1) << ";" << BF.total_cost << ";" << NN.total_cost << ";" << errNN << ";"
+                 << RNN.total_cost << ";" << errRNN << ";" << RNG.total_cost << ";" << errRNG << "\n";
+
+            file.flush();
         }
 
-        cout << "\nN = " << size << endl;
-        cout << fixed << setprecision(2);
-        cout << "Sredni blad NN: " << (sumNN / tests) << " %" << endl;
-        cout << "Sredni blad RNN: " << (sumRNN / tests) << " %" << endl;
-        cout << "Sredni blad Random (10N): " << (sumRNG / tests) << " %" << endl;
+        cout << size << ";"
+             << (sumNN / tests) << ";"
+             << (sumRNN / tests) << ";"
+             << (sumRNG / tests) << endl;
     }
+    file.close();
+    cout << "Zapisano do compareAlg_results.csv" << endl;
 }
 
 
