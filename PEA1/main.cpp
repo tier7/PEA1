@@ -15,9 +15,6 @@
 
 using namespace std;
 
-
-using namespace std;
-
 void printResult(const AlgResults& result, long long time) {
     cout << "Koszt: " << result.total_cost << endl;
     cout << "Sciezka: ";
@@ -213,7 +210,6 @@ int main() {
                 compareAlgorithms();
                 break;
             }
-
             default:
                 std::cout << "Niepoprawna opcja\n";
         }
