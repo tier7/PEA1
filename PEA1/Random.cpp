@@ -15,7 +15,6 @@ using namespace std;
 AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
     AlgResults result(numeric_limits<int>::max());
     int size = matrix.getSize();
-    int piterations = p*size;
     if (size <= 1) {
         result.total_cost = 0;
         result.path = {start};
@@ -30,7 +29,7 @@ AlgResults Random::RandomAlg(const Matrix &matrix, int start, int p) {
     random_device rd;
     mt19937 g(rd());
 
-    for (int i = 0; i < piterations; i++) {
+    for (int i = 0; i < p; i++) {
         shuffle(vertex_list.begin(), vertex_list.end(), g);
         int total_cost = 0;
         total_cost+= matrix.get(start, vertex_list[0]);
