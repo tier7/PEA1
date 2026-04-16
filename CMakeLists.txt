@@ -19,4 +19,5 @@ add_executable(PEA2
         PEA2/Matrix.cpp
         PEA2/Generator.cpp
         PEA2/FileReader.cpp
+        PEA2/BranchAndBound.cpp
 )
