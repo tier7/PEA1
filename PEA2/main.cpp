@@ -13,9 +13,8 @@ int main() {
     Generator generator = Generator();
     matrix.resize(3);
     generator.generateRandom(matrix, 1, 100);
-    BranchAndBound bb = BranchAndBound();
     matrix.print();
-    cout<<bb.calculateLowerBound(matrix);
+    cout<<BranchAndBound::calculateLowerBound(matrix);
 
     return 0;
 }

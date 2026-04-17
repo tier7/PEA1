@@ -9,7 +9,7 @@
 
 class BranchAndBound {
 public:
-    int calculateLowerBound(Matrix &matrix);
+    static int calculateLowerBound(Matrix &matrix);
 };
 
 

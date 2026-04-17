@@ -3,6 +3,7 @@
 //
 #include <limits>
 #include "BranchAndBound.h"
+#include "Node.h"
 
 int BranchAndBound::calculateLowerBound(Matrix &matrix) {
     int n = matrix.getSize();
@@ -16,10 +17,10 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
             }
         }
         // odejmowanie znalezionej najmniejszej wartosci od kazdego elementu wiersza
-        if (lowestCost != numeric_limits<int>::max()) {
+        if (lowestCost != std::numeric_limits<int>::max()) {
             lowerBound += lowestCost;
             for (int j = 0; j < n; j++) {
-                if (i != j) {
+                if (i != j && matrix.get(i,j) != -1) {
                     matrix.set(i, j, matrix.get(i, j) - lowestCost);
                 }
             }
@@ -35,10 +36,10 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
             }
         }
         // odejmowanie najmniejszego kosztu od elementow kolumny
-        if (lowestCost != numeric_limits<int>::max()) {
+        if (lowestCost != std::numeric_limits<int>::max()) {
             lowerBound += lowestCost;
             for (int i = 0; i < n; i++) {
-                if (i != j) {
+                if (i != j && matrix.get(i,j) != -1) {
                     matrix.set(i, j, matrix.get(i, j) - lowestCost);
                 }
 
@@ -48,3 +49,19 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
     }
     return lowerBound;
 };
+
+Node createNode(const Node &parent, const Matrix &matrix, int next) {
+    Node child = parent;
+    child.level += 1;
+    child.visited[next] = true;
+    child.currentPath.push_back(next);
+    child.currentCost += matrix.get(parent.currentIndex, next);
+    for (int i = 0; i<child.reducedMatrix.getSize(); i++) {
+        child.reducedMatrix.set(i, next, -1);
+        child.reducedMatrix.set(parent.currentIndex, i, -1);
+    }
+    child.reducedMatrix.set(next, parent.currentIndex, -1);
+    child.currentIndex = next;
+    child.lowerBound = child.currentCost + BranchAndBound::calculateLowerBound(child.reducedMatrix);
+    return child;
+}

@@ -11,6 +11,7 @@ struct Node {
     int currentIndex, currentCost, lowerBound, level;
     std::vector<int> currentPath;
     std::vector<bool> visited;
+    Matrix reducedMatrix;
 };
 
 
