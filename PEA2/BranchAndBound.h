@@ -6,10 +6,13 @@
 #define BRANCHANDBOUND_H
 
 #include "Matrix.h"
+#include "AlgResults.h"
 
 class BranchAndBound {
 public:
     static int calculateLowerBound(Matrix &matrix);
+
+    static AlgResults dfs(const Matrix &matrix, int start);
 };
 
 

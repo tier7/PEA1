@@ -7,6 +7,7 @@
 #include "Generator.h"
 #include "Node.h"
 #include "BranchAndBound.h"
+#include "AlgResults.h"
 
 int main() {
     Matrix matrix = Matrix();
@@ -14,7 +15,10 @@ int main() {
     matrix.resize(3);
     generator.generateRandom(matrix, 1, 100);
     matrix.print();
-    cout<<BranchAndBound::calculateLowerBound(matrix);
-
+    AlgResults results = BranchAndBound::dfs(matrix, 0);
+    cout<<results.total_cost<<endl;
+    for (int i = 0; i < matrix.getSize(); i++) {
+        cout<<results.path[i];
+    }
     return 0;
 }
