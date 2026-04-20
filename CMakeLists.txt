@@ -20,4 +20,6 @@ add_executable(PEA2
         PEA2/Generator.cpp
         PEA2/FileReader.cpp
         PEA2/BranchAndBound.cpp
+        PEA2/BruteForce.cpp
+        PEA2/NearestNeighbour.cpp
 )

@@ -6,6 +6,7 @@
 #define NODE_H
 
 #include <vector>
+#include "Matrix.h"
 
 struct Node {
     int currentIndex, currentCost, lowerBound, level;
@@ -13,8 +14,5 @@ struct Node {
     std::vector<bool> visited;
     Matrix reducedMatrix;
 };
-
-
-
 
 #endif //NODE_H

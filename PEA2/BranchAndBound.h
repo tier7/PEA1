@@ -12,9 +12,9 @@ class BranchAndBound {
 public:
     static int calculateLowerBound(Matrix &matrix);
 
-    static AlgResults breadthFirstSearch(const Matrix &matrix, int start);
+    static AlgResults breadthFirstSearch(const Matrix &matrix, int start, bool useInitialSolution = false, long long timeLimitMs = 300000LL);
 
-    static AlgResults bestFirstSearch(const Matrix &matrix, int start);
+    static AlgResults bestFirstSearch(const Matrix &matrix, int start, bool useInitialSolution = false, long long timeLimitMs = 300000LL);
 };
 
 

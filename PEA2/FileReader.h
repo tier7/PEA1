@@ -4,14 +4,13 @@
 
 #ifndef FILEREADER_H
 #define FILEREADER_H
-#include "Matrix.h"
 
+#include <string>
+#include "Matrix.h"
 
 class FileReader {
 public:
-    static void LoadFromFile(const string &filename, Matrix &matrix);
+    static void LoadFromFile(const std::string &filename, Matrix &matrix);
 };
-
-
 
 #endif //FILEREADER_H
