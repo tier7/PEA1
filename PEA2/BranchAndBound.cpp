@@ -17,7 +17,7 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
 
     // redukcja wierszy
     for (int i = 0; i < n; i++) {
-        int lowestCost = std::numeric_limits<int>::max();
+        int lowestCost = numeric_limits<int>::max();
         for (int j = 0; j < n; j++) {
             int value = matrix.get(i, j);
             if (i != j && value != -1 && value < lowestCost) {
@@ -28,8 +28,10 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
             }
         }
 
-        if (lowestCost != std::numeric_limits<int>::max()) {
+        if (lowestCost != numeric_limits<int>::max()) {
+            // dodanie znalezionej wartosci najmniejszej do lower bound
             lowerBound += lowestCost;
+            // odjecie minimalnej wartosci od wszystkich elementow wiersza
             for (int j = 0; j < n; j++) {
                 int value = matrix.get(i, j);
                 if (i != j && value != -1) {
@@ -38,11 +40,10 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
             }
         }
     }
-
     // redukcja kolumn
     for (int j = 0; j < n; j++) {
-        int lowestCost = std::numeric_limits<int>::max();
-
+        int lowestCost = numeric_limits<int>::max();
+        // szukanie minimum w kolumnie
         for (int i = 0; i < n; i++) {
             int value = matrix.get(i, j);
             if (i != j && value != -1 && value < lowestCost) {
@@ -52,8 +53,8 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
                 }
             }
         }
-
-        if (lowestCost != std::numeric_limits<int>::max()) {
+        // dodanie do lower bound i odjecie od wszystkich elementow kolumny
+        if (lowestCost != numeric_limits<int>::max()) {
             lowerBound += lowestCost;
             for (int i = 0; i < n; i++) {
                 int value = matrix.get(i, j);
@@ -67,6 +68,7 @@ int BranchAndBound::calculateLowerBound(Matrix &matrix) {
     return lowerBound;
 }
 
+// tworzenie korzenia drzewa
 Node createRoot(const Matrix &matrix, int start) {
     Node root;
     int n = matrix.getSize();
@@ -76,7 +78,7 @@ Node createRoot(const Matrix &matrix, int start) {
     root.currentCost = 0;
     root.lowerBound = 0;
     root.currentPath.push_back(start);
-    root.visited = std::vector<bool>(n, false);
+    root.visited = vector<bool>(n, false);
     root.visited[start] = true;
     root.reducedMatrix = matrix;
     root.lowerBound = BranchAndBound::calculateLowerBound(root.reducedMatrix);
@@ -84,30 +86,33 @@ Node createRoot(const Matrix &matrix, int start) {
     return root;
 }
 
-Node createNode(const Node &parent, const Matrix &matrix, int next) {
+// tworzenie nowego wezla po przejsciu z miasta do nastepnego
+Node createNode(const Node &parent, const Matrix &matrix, int next, int start) {
     Node child = parent;
+    int reducedEdgeCost = parent.reducedMatrix.get(parent.currentIndex, next);
 
     child.level += 1;
     child.visited[next] = true;
     child.currentPath.push_back(next);
     child.currentCost += matrix.get(parent.currentIndex, next);
-
-    // blokowanie wiersza i kolumny
+    // blokowanie kolumny i wiersza
     for (int i = 0; i < child.reducedMatrix.getSize(); i++) {
         child.reducedMatrix.set(i, next, -1);
         child.reducedMatrix.set(parent.currentIndex, i, -1);
     }
+    if (child.level < child.reducedMatrix.getSize()) {
+        child.reducedMatrix.set(next, start, -1);
+    }
 
-    // blokowanie powrotu z next do parent
-    child.reducedMatrix.set(next, parent.currentIndex, -1);
     child.currentIndex = next;
-    child.lowerBound = child.currentCost + BranchAndBound::calculateLowerBound(child.reducedMatrix);
+    int reductionCost = BranchAndBound::calculateLowerBound(child.reducedMatrix);
+    child.lowerBound = parent.lowerBound + reducedEdgeCost + reductionCost;
 
     return child;
 }
 
 void updateIfBest(const Node &currentNode, const Matrix &matrix, int start,
-                  int &bestCost, std::vector<int> &bestPath) {
+                  int &bestCost, vector<int> &bestPath) {
     int returnCost = matrix.get(currentNode.currentIndex, start);
     if (returnCost == -1) {
         return;
@@ -128,59 +133,75 @@ bool canVisit(const Node &currentNode, int next) {
 }
 
 void initializeUpperBound(const Matrix &matrix, int start, bool useInitialSolution,
-                          int &bestCost, std::vector<int> &bestPath) {
-    bestCost = std::numeric_limits<int>::max();
+                          int &bestCost, vector<int> &bestPath) {
+    bestCost = numeric_limits<int>::max();
     bestPath.clear();
 
     if (useInitialSolution) {
         AlgResults initial = NearestNeighbour::NN(matrix, start);
-        if (!initial.path.empty() && initial.total_cost != std::numeric_limits<int>::max()) {
+        if (!initial.path.empty() && initial.total_cost != numeric_limits<int>::max()) {
             bestCost = initial.total_cost;
             bestPath = initial.path;
         }
     }
 }
 
+bool timeLimitReached(const chrono::high_resolution_clock::time_point &timeStart, long long timeLimitMs) {
+    auto now = chrono::high_resolution_clock::now();
+    long long elapsedMs = chrono::duration_cast<chrono::milliseconds>(now - timeStart).count();
+    return elapsedMs >= timeLimitMs;
+}
+
 AlgResults BranchAndBound::breadthFirstSearch(const Matrix &matrix, int start, bool useInitialSolution, long long timeLimitMs) {
-    auto timeStart = std::chrono::high_resolution_clock::now();
+    auto timeStart = chrono::high_resolution_clock::now();
 
     Node root = createRoot(matrix, start);
-    std::queue<Node> nodes;
+    queue<Node> nodes;
     nodes.push(root);
 
     int bestCost;
-    std::vector<int> bestPath;
+    vector<int> bestPath;
     initializeUpperBound(matrix, start, useInitialSolution, bestCost, bestPath);
 
     while (!nodes.empty()) {
-        auto now = std::chrono::high_resolution_clock::now();
-        long long elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - timeStart).count();
-        if (elapsedMs >= timeLimitMs) {
+        if (timeLimitReached(timeStart, timeLimitMs)) {
             return AlgResults(bestCost, bestPath, true);
         }
-
+        // pobranie wezla z kolejki
         Node currentNode = nodes.front();
         nodes.pop();
-
+        // odcinanie galezi ktora nie poprawi najlepszego rozwiazania
         if (currentNode.lowerBound >= bestCost) {
             continue;
         }
-
+        // zamkniecie cyklu gdy odwiedzono wszystkie miasta
         if (currentNode.level == matrix.getSize()) {
             updateIfBest(currentNode, matrix, start, bestCost, bestPath);
         }
         else {
+            // generowanie dzieci dla wszystkich kolejnych dopuszczalnych miast
             for (int i = 0; i < currentNode.reducedMatrix.getSize(); i++) {
-                if (canVisit(currentNode, i)) {
-                    int partialCost = currentNode.currentCost + matrix.get(currentNode.currentIndex, i);
-                    if (partialCost >= bestCost) {
-                        continue;
-                    }
+                if (timeLimitReached(timeStart, timeLimitMs)) {
+                    return AlgResults(bestCost, bestPath, true);
+                }
 
-                    Node child = createNode(currentNode, matrix, i);
-                    if (child.lowerBound < bestCost) {
-                        nodes.push(child);
-                    }
+                if (!canVisit(currentNode, i)) {
+                    continue;
+                }
+
+                int partialCost = currentNode.currentCost + matrix.get(currentNode.currentIndex, i);
+                if (partialCost >= bestCost) {
+                    continue;
+                }
+
+                Node child = createNode(currentNode, matrix, i, start);
+
+                if (timeLimitReached(timeStart, timeLimitMs)) {
+                    return AlgResults(bestCost, bestPath, true);
+                }
+
+                if (child.lowerBound < bestCost) {
+                    nodes.push(child);
                 }
             }
         }
@@ -196,20 +217,18 @@ struct CompareNode {
 };
 
 AlgResults BranchAndBound::bestFirstSearch(const Matrix &matrix, int start, bool useInitialSolution, long long timeLimitMs) {
-    auto timeStart = std::chrono::high_resolution_clock::now();
+    auto timeStart = chrono::high_resolution_clock::now();
 
     Node root = createRoot(matrix, start);
-    std::priority_queue<Node, std::vector<Node>, CompareNode> nodes;
+    priority_queue<Node, vector<Node>, CompareNode> nodes;
     nodes.push(root);
 
     int bestCost;
-    std::vector<int> bestPath;
+    vector<int> bestPath;
     initializeUpperBound(matrix, start, useInitialSolution, bestCost, bestPath);
 
     while (!nodes.empty()) {
-        auto now = std::chrono::high_resolution_clock::now();
-        long long elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - timeStart).count();
-        if (elapsedMs >= timeLimitMs) {
+        if (timeLimitReached(timeStart, timeLimitMs)) {
             return AlgResults(bestCost, bestPath, true);
         }
 
@@ -225,16 +244,27 @@ AlgResults BranchAndBound::bestFirstSearch(const Matrix &matrix, int start, bool
         }
         else {
             for (int i = 0; i < currentNode.reducedMatrix.getSize(); i++) {
-                if (canVisit(currentNode, i)) {
-                    int partialCost = currentNode.currentCost + matrix.get(currentNode.currentIndex, i);
-                    if (partialCost >= bestCost) {
-                        continue;
-                    }
+                if (timeLimitReached(timeStart, timeLimitMs)) {
+                    return AlgResults(bestCost, bestPath, true);
+                }
 
-                    Node child = createNode(currentNode, matrix, i);
-                    if (child.lowerBound < bestCost) {
-                        nodes.push(child);
-                    }
+                if (!canVisit(currentNode, i)) {
+                    continue;
+                }
+
+                int partialCost = currentNode.currentCost + matrix.get(currentNode.currentIndex, i);
+                if (partialCost >= bestCost) {
+                    continue;
+                }
+
+                Node child = createNode(currentNode, matrix, i, start);
+
+                if (timeLimitReached(timeStart, timeLimitMs)) {
+                    return AlgResults(bestCost, bestPath, true);
+                }
+
+                if (child.lowerBound < bestCost) {
+                    nodes.push(child);
                 }
             }
         }
