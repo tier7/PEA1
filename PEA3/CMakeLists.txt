@@ -10,5 +10,6 @@ add_executable(PEA3
         Generator.cpp
         FileReader.cpp
         BruteForce.cpp
+        NearestNeighbour.cpp
         SimulatedAnnealing.cpp
 )

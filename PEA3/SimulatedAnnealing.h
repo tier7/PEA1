@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "Matrix.h"
+#include "AlgResults.h"
 
 enum CoolingScheme {
     LINEAR,
@@ -32,8 +33,8 @@ struct Parameters {
 class SimulatedAnnealing {
 public:
     static std::vector<int> initialSolution(InitialSolutionType type, int start, const Matrix &matrix);
-    int calculateCost(const Matrix &matrix, const std::vector<int> &path);
-    static std::vector<int> SA(const Matrix &matrix, int start, InitialSolutionType initType);
+    static int calculateCost(const Matrix &matrix, const std::vector<int> &path);
+    static AlgResults SA(const Matrix &matrix, int start, InitialSolutionType initType, const Parameters &params);
 };
 
 
