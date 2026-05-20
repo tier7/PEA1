@@ -29,7 +29,6 @@ add_executable(PEA3
         PEA3/Matrix.cpp
         PEA3/Generator.cpp
         PEA3/FileReader.cpp
-        PEA3/BruteForce.cpp
         PEA3/NearestNeighbour.cpp
         PEA3/SimulatedAnnealing.cpp
 )

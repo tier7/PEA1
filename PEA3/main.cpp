@@ -24,7 +24,6 @@ void printPath(const vector<int> &path) {
 
 void printResult(const AlgResults &result, long long time, const Matrix &matrix) {
     cout << "Koszt: " << result.total_cost << endl;
-    cout << "Sprawdzenie kosztu: " << SimulatedAnnealing::calculateCost(matrix, result.path) << endl;
     cout << "Sciezka: ";
     printPath(result.path);
     cout << "Czas: " << time << " us" << endl;
@@ -155,8 +154,10 @@ void calculateInitialSolution(const Matrix &matrix, InitialSolutionType initType
     auto start = chrono::high_resolution_clock::now();
     vector<int> path = SimulatedAnnealing::initialSolution(initType, 0, matrix);
     auto end = chrono::high_resolution_clock::now();
+
     long long time = chrono::duration_cast<chrono::microseconds>(end - start).count();
     int cost = SimulatedAnnealing::calculateCost(matrix, path);
+
     cout << "Koszt: " << cost << endl;
     cout << "Sciezka: ";
     printPath(path);
@@ -307,18 +308,18 @@ void simulatedAnnealingTests(Parameters baseParams) {
         string path = files[f];
 
         try {
-            // zaleznosc czasu i bledu od rozmiaru instancji
+            // Zaleznosc czasu i bledu od rozmiaru instancji
             Parameters paramsSize = baseParams;
             runConfigForFile(file, path, solutions, "rozmiar", "domyslne", repeats, paramsSize, NEARESTNEIGHBOUR);
 
-            // wplyw rozwiazania poczatkowego
+            // Wplyw rozwiazania poczatkowego
             Parameters paramsRandom = baseParams;
             runConfigForFile(file, path, solutions, "start", "random", repeats, paramsRandom, RANDOM);
 
             Parameters paramsNN = baseParams;
             runConfigForFile(file, path, solutions, "start", "nearest_neighbour", repeats, paramsNN, NEARESTNEIGHBOUR);
 
-            // wplyw schematu chlodzenia
+            // Wplyw schematu chlodzenia
             Parameters paramsExp = baseParams;
             paramsExp.cooling_scheme = EXPONENTIAL;
             paramsExp.cooling = 0.999;
@@ -429,6 +430,7 @@ int main() {
     params.cooling_scheme = EXPONENTIAL;
     params.initial_solution_type = NEARESTNEIGHBOUR;
 
+
     InitialSolutionType initType = NEARESTNEIGHBOUR;
 
     do {
@@ -436,7 +438,7 @@ int main() {
         cout << "2. Wprowadzenie kryterium stopu" << endl;
         cout << "3. Obliczanie rozwiazania poczatkowego" << endl;
         cout << "4. Modyfikacja ustawien algorytmu" << endl;
-        cout << "5. Algorytm symulowanego wyzarzania" << endl;
+        cout << "5. Uruchom algorytm" << endl;
         cout << "6. Wyswietlenie macierzy" << endl;
         cout << "7. Testy do CSV" << endl;
         cout << "8. Wyswietlenie parametrow" << endl;
@@ -476,7 +478,7 @@ int main() {
                         break;
                     }
 
-                    cout << "Algorytm Symulowanego Wyzarzania:" << endl;
+                    cout << "Algorytm symulowanego wyzarzania:" << endl;
                     long long executionTime = 0;
                     AlgResults result = runSA(matrix, params, initType, executionTime);
                     printResult(result, executionTime, matrix);
