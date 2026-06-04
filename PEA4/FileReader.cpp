@@ -1,0 +1,62 @@
+//
+// Created by wiktor on 17.03.2026.
+//
+
+#include "FileReader.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "Matrix.h"
+
+using namespace std;
+
+void FileReader::LoadFromFile(const string &filename, Matrix &matrix) {
+    string text;
+    ifstream file(filename);
+    if (!file.is_open()) {
+        throw runtime_error("Nie mozna otworzyc pliku " + filename);
+    }
+
+    int size = 0;
+    bool foundSection = false;
+
+    while (getline(file, text)) {
+        if (text.find("DIMENSION") != string::npos) {
+            size_t pos = text.find(':');
+            if (pos != string::npos) {
+                size = stoi(text.substr(pos + 1));
+            }
+        }
+
+        if (text.find("EDGE_WEIGHT_SECTION") != string::npos) {
+            foundSection = true;
+            break;
+        }
+    }
+
+    if (size <= 0) {
+        throw runtime_error("Niepoprawny rozmiar macierzy");
+    }
+
+    if (!foundSection) {
+        throw runtime_error("Nie znaleziono sekcji z macierza");
+    }
+
+    matrix.resize(size);
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            int val;
+            file >> val;
+
+            if (!file) {
+                throw runtime_error("Niepoprawny rozmiar macierzy");
+            }
+
+            matrix.set(i, j, val);
+        }
+    }
+
+    file.close();
+}
