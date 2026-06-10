@@ -30,6 +30,10 @@ std::vector<int> GeneticAlgorithm::initialSolution(int start, const Matrix &matr
 }
 
 int GeneticAlgorithm::calculateCost(const Matrix &matrix, const std::vector<int> &path) {
+    if (path.empty()) {
+        return std::numeric_limits<int>::max();
+    }
+
     if (path.front() != path.back()) {
         return std::numeric_limits<int>::max();
     }
@@ -192,10 +196,13 @@ AlgResults GeneticAlgorithm::GA(const Matrix &matrix, int start, const GeneticPa
         }
     }
 
-    long long time_to_best_ms = 0;
+    auto after_initial = std::chrono::high_resolution_clock::now();
+    long long time_to_best_ms = std::chrono::duration_cast<std::chrono::milliseconds>(after_initial - start_time).count();
     bool stop = false;
-    int generation = 0;
-    int generations_without_improvement = 0;
+
+    if (params.optimal_cost > 0 && best_individual.cost <= params.optimal_cost) {
+        stop = true;
+    }
 
     while (!stop) {
         std::vector<Individual> new_population;
@@ -236,7 +243,6 @@ AlgResults GeneticAlgorithm::GA(const Matrix &matrix, int start, const GeneticPa
                     break;
                 }
 
-                generations_without_improvement = 0;
             }
 
             auto now = std::chrono::high_resolution_clock::now();
@@ -249,8 +255,6 @@ AlgResults GeneticAlgorithm::GA(const Matrix &matrix, int start, const GeneticPa
         }
 
         population = new_population;
-        generation++;
-        generations_without_improvement++;
 
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
@@ -259,13 +263,6 @@ AlgResults GeneticAlgorithm::GA(const Matrix &matrix, int start, const GeneticPa
             stop = true;
         }
 
-        if (params.max_generations > 0 && generation >= params.max_generations) {
-            stop = true;
-        }
-
-        if (params.no_improvement_limit > 0 && generations_without_improvement >= params.no_improvement_limit) {
-            stop = true;
-        }
     }
 
     double avg = 0.0;

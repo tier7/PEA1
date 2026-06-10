@@ -116,15 +116,10 @@ void printParams(const GeneticParameters &params) {
     cout << "Wspolczynnik mutacji: " << params.mutation_rate << endl;
     cout << "Wspolczynnik krzyzowania: " << params.crossover_rate << endl;
     cout << "Metoda mutacji: " << mutationTypeToString(params.mutation_type) << endl;
+    cout << "Metoda krzyzowania: OX" << endl;
+    cout << "Metoda selekcji: turniejowa" << endl;
     cout << "Rozmiar turnieju: " << params.tournament_size << endl;
     cout << "Limit czasu: " << params.time_limit << " ms" << endl;
-    cout << "Limit generacji bez poprawy: ";
-    if (params.no_improvement_limit > 0) {
-        cout << params.no_improvement_limit << endl;
-    }
-    else {
-        cout << "wylaczone" << endl;
-    }
 }
 
 AlgResults runGA(const Matrix &matrix, GeneticParameters params) {
@@ -137,9 +132,9 @@ void printResult(const AlgResults &result, int opt) {
     cout << "Czas: " << result.time_to_best_ms << " ms" << endl;
 
     if (opt > 0) {
-        cout << "Blad wzgl. (najlepszy): " << fixed << setprecision(4) << calculateError(result.total_cost, opt) << " %" << endl;
+        cout << "Blad wzgledny najlepszego rozwiazania: " << fixed << setprecision(4) << calculateError(result.total_cost, opt) << " %" << endl;
         double errorAvg = 100.0 * (result.avg_cost - opt) / opt;
-        cout << "Blad wzgl. (sredni): " << fixed << setprecision(4) << errorAvg << " %" << endl;
+        cout << "Blad wzgledny (sredni): " << fixed << setprecision(4) << errorAvg << " %" << endl;
     }
 
     cout << "Sciezka: ";
@@ -267,10 +262,10 @@ void geneticAlgorithmTests(GeneticParameters baseParams) {
     cout << "Liczba powtorzen kazdej konfiguracji: ";
     cin >> repeats;
 
-    long long compSek;
-    cout << "Limit czasu testow populacja/mutacja w sekundach: ";
-    cin >> compSek;
-    long long compTimeMs = compSek * 1000;
+    long long sek;
+    cout << "Limit czasu testow w sekundach: ";
+    cin >> sek;
+    long long timeMs = sek * 1000;
 
     map<string, int> solutions = loadSolutions(solutionsFile);
 
@@ -295,38 +290,84 @@ void geneticAlgorithmTests(GeneticParameters baseParams) {
         string path = files[f];
 
         try {
-            GeneticParameters paramsRozmiar = baseParams;
-            paramsRozmiar.population_size = 200;
-            runConfigForFile(file, path, solutions, "rozmiar", "pop200", repeats, paramsRozmiar);
+            Matrix matrix;
+            FileReader::LoadFromFile(path, matrix);
 
-            GeneticParameters paramsPop50 = baseParams;
-            paramsPop50.population_size = 50;
-            paramsPop50.time_limit = compTimeMs;
-            runConfigForFile(file, path, solutions, "populacja", "pop50", repeats, paramsPop50);
+            string name = getFileName(path);
+            int opt = 0;
 
-            GeneticParameters paramsPop100 = baseParams;
-            paramsPop100.population_size = 100;
-            paramsPop100.time_limit = compTimeMs;
-            runConfigForFile(file, path, solutions, "populacja", "pop100", repeats, paramsPop100);
+            if (solutions.find(name) != solutions.end()) {
+                opt = solutions[name];
+            }
+            else {
+                cout << "Brak OPT dla pliku: " << name << endl;
+            }
 
-            GeneticParameters paramsPop200 = baseParams;
-            paramsPop200.population_size = 200;
-            paramsPop200.time_limit = compTimeMs;
-            runConfigForFile(file, path, solutions, "populacja", "pop200", repeats, paramsPop200);
+            for (int i = 0; i < repeats; i++) {
+                GeneticParameters paramsBase = baseParams;
+                paramsBase.population_size = 300;
+                paramsBase.mutation_type = SWAP;
+                paramsBase.time_limit = timeMs;
+                paramsBase.optimal_cost = opt;
 
-            GeneticParameters paramsSwap = baseParams;
-            paramsSwap.population_size = 200;
-            paramsSwap.mutation_type = SWAP;
-            paramsSwap.time_limit = compTimeMs;
-            runConfigForFile(file, path, solutions, "mutacja", "swap", repeats, paramsSwap);
+                AlgResults baseResult = runGA(matrix, paramsBase);
+                saveOneResult(file, name, matrix.getSize(), opt, "rozmiar", "pop300", i + 1, paramsBase, baseResult);
+                saveOneResult(file, name, matrix.getSize(), opt, "populacja", "pop300", i + 1, paramsBase, baseResult);
+                saveOneResult(file, name, matrix.getSize(), opt, "mutacja", "swap", i + 1, paramsBase, baseResult);
 
-            GeneticParameters paramsInv = baseParams;
-            paramsInv.population_size = 200;
-            paramsInv.mutation_type = INVERSION;
-            paramsInv.time_limit = compTimeMs;
-            runConfigForFile(file, path, solutions, "mutacja", "inversion", repeats, paramsInv);
+                cout << name << ";rozmiar;pop300;" << (i + 1) << ";koszt=" << baseResult.total_cost;
+                if (opt > 0) {
+                    cout << ";blad=" << fixed << setprecision(2) << calculateError(baseResult.total_cost, opt) << "%";
+                }
+                cout << ";czas=" << baseResult.time_to_best_ms << " ms" << endl;
 
-            file.flush();
+                GeneticParameters paramsPop100 = baseParams;
+                paramsPop100.population_size = 100;
+                paramsPop100.mutation_type = SWAP;
+                paramsPop100.time_limit = timeMs;
+                paramsPop100.optimal_cost = opt;
+
+                AlgResults resultPop100 = runGA(matrix, paramsPop100);
+                saveOneResult(file, name, matrix.getSize(), opt, "populacja", "pop100", i + 1, paramsPop100, resultPop100);
+
+                cout << name << ";populacja;pop100;" << (i + 1) << ";koszt=" << resultPop100.total_cost;
+                if (opt > 0) {
+                    cout << ";blad=" << fixed << setprecision(2) << calculateError(resultPop100.total_cost, opt) << "%";
+                }
+                cout << ";czas=" << resultPop100.time_to_best_ms << " ms" << endl;
+
+                GeneticParameters paramsPop200 = baseParams;
+                paramsPop200.population_size = 200;
+                paramsPop200.mutation_type = SWAP;
+                paramsPop200.time_limit = timeMs;
+                paramsPop200.optimal_cost = opt;
+
+                AlgResults resultPop200 = runGA(matrix, paramsPop200);
+                saveOneResult(file, name, matrix.getSize(), opt, "populacja", "pop200", i + 1, paramsPop200, resultPop200);
+
+                cout << name << ";populacja;pop200;" << (i + 1) << ";koszt=" << resultPop200.total_cost;
+                if (opt > 0) {
+                    cout << ";blad=" << fixed << setprecision(2) << calculateError(resultPop200.total_cost, opt) << "%";
+                }
+                cout << ";czas=" << resultPop200.time_to_best_ms << " ms" << endl;
+
+                GeneticParameters paramsInv = baseParams;
+                paramsInv.population_size = 300;
+                paramsInv.mutation_type = INVERSION;
+                paramsInv.time_limit = timeMs;
+                paramsInv.optimal_cost = opt;
+
+                AlgResults resultInv = runGA(matrix, paramsInv);
+                saveOneResult(file, name, matrix.getSize(), opt, "mutacja", "inversion", i + 1, paramsInv, resultInv);
+
+                cout << name << ";mutacja;inversion;" << (i + 1) << ";koszt=" << resultInv.total_cost;
+                if (opt > 0) {
+                    cout << ";blad=" << fixed << setprecision(2) << calculateError(resultInv.total_cost, opt) << "%";
+                }
+                cout << ";czas=" << resultInv.time_to_best_ms << " ms" << endl;
+
+                file.flush();
+            }
         }
         catch (const exception &e) {
             cout << "Blad dla pliku " << path << ": " << e.what() << endl;
@@ -347,10 +388,7 @@ void changeParameters(GeneticParameters &params) {
         cout << "2. Wspolczynnik mutacji" << endl;
         cout << "3. Wspolczynnik krzyzowania" << endl;
         cout << "4. Metoda mutacji" << endl;
-        cout << "5. Metoda krzyzowania" << endl;
-        cout << "6. Metoda selekcji (rozmiar turnieju)" << endl;
-        cout << "7. Limit generacji bez poprawy (0 = bez limitu)" << endl;
-        cout << "8. Powrot" << endl;
+        cout << "5. Powrot" << endl;
         cin >> choice;
 
         switch (choice) {
@@ -383,31 +421,13 @@ void changeParameters(GeneticParameters &params) {
                 break;
             }
 
-            case 5: {
-                int type;
-                cout << "0 - OX (Order Crossover): ";
-                cin >> type;
-                cout << "Wybrano: OX" << endl;
-                break;
-            }
-
-            case 6:
-                cout << "Podaj rozmiar turnieju: ";
-                cin >> params.tournament_size;
-                break;
-
-            case 7:
-                cout << "Podaj limit generacji bez poprawy (0 = bez limitu): ";
-                cin >> params.no_improvement_limit;
-                break;
-
-            case 8:
+            case 5:
                 break;
 
             default:
                 cout << "Niepoprawna opcja" << endl;
         }
-    } while (choice != 8);
+    } while (choice != 5);
 }
 
 int main() {
@@ -417,19 +437,18 @@ int main() {
     int opt = 0;
 
     GeneticParameters params;
-    params.population_size = 100;
+    params.population_size = 300;
     params.mutation_rate = 0.1;
     params.crossover_rate = 0.8;
     params.time_limit = 900000;
-    params.max_generations = 0;
-    params.no_improvement_limit = 0;
+    params.optimal_cost = 0;
     params.mutation_type = SWAP;
     params.tournament_size = 3;
 
     do {
         cout << "\n1. Wczytywanie danych z pliku" << endl;
         cout << "2. Wprowadzenie kryterium stopu" << endl;
-        cout << "3. Podaj optymalne rozwiazanie (OPT)" << endl;
+        cout << "3. Podaj optymalne rozwiazanie" << endl;
         cout << "4. Modyfikacja ustawien algorytmu" << endl;
         cout << "5. Uruchom algorytm" << endl;
         cout << "6. Wyswietlenie macierzy" << endl;
@@ -457,7 +476,7 @@ int main() {
                 }
 
                 case 3:
-                    cout << "Podaj optymalne rozwiazanie (OPT): ";
+                    cout << "Podaj optymalne rozwiazanie: ";
                     cin >> opt;
                     break;
 

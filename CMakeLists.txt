@@ -38,6 +38,5 @@ add_executable(PEA4
         PEA4/Matrix.cpp
         PEA4/Generator.cpp
         PEA4/FileReader.cpp
-        PEA4/NearestNeighbour.cpp
         PEA4/GeneticAlgorithm.cpp
 )

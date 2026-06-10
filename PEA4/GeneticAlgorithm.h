@@ -15,12 +15,10 @@ enum MutationType {
 };
 
 struct GeneticParameters {
-    int population_size = 100;
+    int population_size = 300;
     double mutation_rate = 0.1;
     double crossover_rate = 0.8;
     long long time_limit = 900000;
-    int max_generations = 0;
-    int no_improvement_limit = 0;
     int optimal_cost = 0;
     MutationType mutation_type = SWAP;
     int tournament_size = 3;
